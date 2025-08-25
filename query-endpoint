@@ -1,0 +1,19 @@
+import requests
+
+databricks_instance = "https://adb-<INSTANCE>.azuredatabricks.net/"
+id = "<ID>"
+# Replace with any DBR REST API endpoint
+endpoint = f"{databricks_instance}/api/2.0/preview/scim/v2/Users/{id}"
+
+# Authentication
+bearer_token = dbutils.secrets.get(scope="<SCOPE_NAME>", key="<KEY>")
+headers = {
+    "Authorization": f"Bearer {bearer_token}"
+}
+
+# Request
+try:
+    response = requests.get(endpoint, headers=headers)
+    print(response.status_code)
+except Exception as e:
+    print(f"Request failed with exception {e}")
