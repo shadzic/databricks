@@ -1,0 +1,29 @@
+
+from pyspark.sql import Row
+import builtins
+
+catalog = "CATALOG_NAME"
+schema = "SCHEMA"
+
+rows = []
+
+# Get tables
+tables = spark.sql(f"SHOW TABLES IN {catalog}.{schema}").collect()
+tables = [t.tableName for t in tables]
+
+# Get views
+spark.sql(f"USE CATALOG {catalog}")
+views = spark.sql(f"SHOW VIEWS IN {schema}").collect()
+views = [v.viewName for v in views]
+
+# Separate tables from views
+tables_only = [t for t in tables if t not in views]
+
+for t in tables_only:
+    print(t)
+    detail = spark.sql(f"DESCRIBE DETAIL {catalog}.{schema}.{t}").collect()[0]
+    print(detail['sizeInBytes'])
+    rows.append(detail['sizeInBytes'])
+
+total_bytes = builtins.sum(rows)
+print(f"Total size: {total_bytes / (1024**3):.2f} GB")
